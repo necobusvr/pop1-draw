@@ -10,7 +10,7 @@ fileInput.onchange = () => {
   const maxFileSize = 1024 * 100; // 制限サイズ
   // メッセージ表示用の Div を作成
   $('.csv-import-message').remove();
-  $('#header').after('<div class="csv-import-message animate-fadeIn text-center p-5"></div>');
+  $('#header').append('<div class="csv-import-message text-center w-full p-5 animate-fadeIn"></div>');
 
   if (file.type !== "text/csv" && file.type !== "application/vnd.ms-excel" && file.type !== "application/octet-stream") {
     alert("Only CSV files can be uploaded."); // エラーメッセージを表示
@@ -62,6 +62,8 @@ fileReader.onload = () => {
 
   // 子要素を削除（エントリープレイヤー）
   $('#entry').empty();
+
+  // csvデータを読み込みプレイヤー名を表示
   $('.csv-import-message').append(`<p class="text-green-600 text-xl">${csvEntryArray.length} players loaded.</p>`);
   for (let i = 0; i < csvEntryArray.length; i++) {
     newPlayerCreate();
