@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 const draw = document.getElementById("draw");
 function textData(squadArray, squadNewKRSumAry, killRateAverage, squadMaxKillRate, squadMinKillRate) {
   // 分割されたスクワッドの配列をキルレート順にソート

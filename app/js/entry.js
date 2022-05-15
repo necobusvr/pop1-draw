@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 const entryArray = []; // エントリープレイヤーの配列初期値
 const maxPlayer = 100; // 対応人数
 const entryPlayerNum = 18; // 初期エントリープレイヤー人数

@@ -1,10 +1,11 @@
+import $ from 'jquery';
 import { newPlayerCreate, entryArray } from './entry.js';
 
 const fileInput = document.getElementById("file-input");
 const fileReader = new FileReader();
 
 // ファイル変更時のイベント
-fileInput.onchange = () => {
+const csvInput = fileInput.onchange = () => {
   const file = fileInput.files[0];
   const fileSize = file.size; // ファイルサイズ
   const maxFileSize = 1024 * 100; // 制限サイズ
@@ -37,7 +38,7 @@ fileInput.onchange = () => {
 
 // ファイル読み込み時
 let csvEntryArray = [];
-fileReader.onload = () => {
+const csvReader = fileReader.onload = () => {
   // ファイル読み込み
   let fileResult = fileReader.result.split("\r\n");
 
@@ -72,11 +73,13 @@ fileReader.onload = () => {
 };
 
 // ファイル読み取り失敗時
-fileReader.onerror = () => {
+const csvError = fileReader.onerror = () => {
   $('.csv-import-message').append("Failed to read file.");
 };
 
 // 同じファイルをアップロードできるようにする
-fileInput.addEventListener("click", (e) => {
+const csvSame = fileInput.addEventListener("click", (e) => {
   e.target.value = "";
 });
+
+export { csvInput, csvReader, csvError, csvSame }

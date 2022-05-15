@@ -6,8 +6,9 @@
     "start": "node ./bin/www",
     "dev": "run-p dev:*",
     "dev:start": "node ./bin/www",
-    "dev:css": "postcss ./public/src/input.css -o ./public/dist/style.css --watch",
-    "build": "NODE_ENV=production postcss ./public/src/input.css -o ./public/dist/style.css",
+    "dev:webpack": "webpack --watch",
+    "dev:css": "postcss ./app/css/input.css -o ./public/dist/style.css --watch",
+    "build": "NODE_ENV=production postcss ./app/css/input.css -o ./public/dist/style.css",
     "test": "jest"
   },
   "dependencies": {
@@ -19,7 +20,8 @@
     "http-errors": "~1.6.3",
     "jquery": "^3.6.0",
     "morgan": "~1.9.1",
-    "pug": "2.0.0-beta11"
+    "pug": "2.0.0-beta11",
+    "uuidv4": "^6.2.13"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",

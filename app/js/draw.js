@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { entryArray } from './entry.js';
 import { textData } from './copy.js';
 

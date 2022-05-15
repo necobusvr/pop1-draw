@@ -4,6 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const helmet = require('helmet');
+const uuidv4 = require('uuidv4');
 
 const indexRouter = require('./routes/index');
 const jsonSearch = require('./routes/json-search');
@@ -18,7 +19,6 @@ app.use(
     useDefaults: true,
     directives: {
       "img-src": ["'self'", "https: data:"],
-      "script-src": ["'self'", "https://code.jquery.com"]
     }
   })
 )
