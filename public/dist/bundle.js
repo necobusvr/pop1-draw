@@ -11282,6 +11282,7 @@ jquery__WEBPACK_IMPORTED_MODULE_0___default()('#custom').on('click', function ()
 }); // 抽選をする
 
 function draw() {
+  console.log('eee');
   jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn .loading').css('display', 'block');
   jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw').empty();
   jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').empty();
