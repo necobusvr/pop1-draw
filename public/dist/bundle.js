@@ -1,7 +1,876 @@
 /******/ (() => { // webpackBootstrap
-/******/ 	var __webpack_modules__ = ([
-/* 0 */,
-/* 1 */
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./ajax-player-id.js":
+/*!***************************!*\
+  !*** ./ajax-player-id.js ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "doAjax": () => (/* binding */ doAjax)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "../../node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _ajax_player_info_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ajax-player-info.js */ "./ajax-player-info.js");
+
+
+/**
+ * Ajax 通信（サーバにプレイヤー名を送り絞り込んだプレイヤー名を返してもらう）
+ * @param {object} data API通信用のプレイヤー名 Object {'player': プレイヤー名}
+ * @param {Element} target 親要素の ID(#) を取得(プレイヤー名が入力されたDiv)
+ */
+
+var jqXHR = null;
+
+function doAjax(data, target) {
+  // ajax 通信中の場合 ajax 通信をキャンセル
+  if (jqXHR) {
+    jqXHR.abort();
+  } // ajax 通信処理の返り値を jqxhr にセット(↑これで上記の条件分岐ができる)
+  // Loading アイコンを表示
+
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .loading")).css('display', 'flex');
+  jqXHR = jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+    type: 'POST',
+    url: '/json-search',
+    data: JSON.stringify(data),
+    contentType: 'application/json',
+    dataType: 'json',
+    timeout: 10000
+  }).done(function (json) {
+    // 子要素を削除
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.player-select').empty(); // プレイヤー候補名を表示
+
+    var li = '';
+
+    for (var i = 0; i < json.length; i++) {
+      li += "\n      <li class=\"player-choice\" style=\"background-image: url(".concat(json[i].avatarUrl, ");\">\n        ").concat(json[i].displayName, "\n      </li>");
+    }
+
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .player-select")).append("<ul class=\"player-list bg-gray-800 w-[120%] mt-1.5 absolute z-50\">".concat(li, "</ul>")); // プレイヤー候補名一覧からプレイヤーを選択したときの処理
+
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.player-list li').on('click', function (event) {
+      // 次の API 通信で使うデータを作成
+      var targetObject = {
+        'id': null
+      };
+      var listIndex = jquery__WEBPACK_IMPORTED_MODULE_0___default()(event.target).index(); // クリックした li の添字
+
+      targetObject.id = "".concat(json[listIndex].playFabId); // API サーバに送るプレイヤーID
+      // プレイヤー ID から プレイヤー情報を取り出す
+
+      (0,_ajax_player_info_js__WEBPACK_IMPORTED_MODULE_1__.ajaxPostPlayerName)(target, targetObject);
+    }); // 検索結果のプレイヤー一覧を消す
+
+    if (jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .player-list")).length) {
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()(document).on('click', function () {
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .player-list")).remove();
+      });
+    } // 絞り込みが1件だった場合は自動でプレイヤー情報を出力
+
+
+    if (json.length === 1) {
+      var targetPlayerID = json[0].playFabId; // 配列からプレイヤー ID を取得
+
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.player-list').remove(); // 次の API 通信で使うデータを作成
+
+      var targetObject = {
+        'id': null
+      };
+      targetObject.id = targetPlayerID; // プレイヤー ID から プレイヤー情報を取り出す
+
+      (0,_ajax_player_info_js__WEBPACK_IMPORTED_MODULE_1__.ajaxPostPlayerName)(target, targetObject);
+    } // 絞り込み結果が 0 件の場合 No Data と出力
+
+
+    if (json.length === 0) {
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .player-select")).append("<div class=\"player-list\">No Data</div>");
+    }
+  }).fail(function (jqXHR, textStatus, errorThrown) {
+    // console.log(jqXHR, textStatus, errorThrown);
+    if (textStatus === "timeout") {
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').after("<div class=\"entry-error animate-fadeIn\"><p class=\"error\">Timeout error.<br>No response from api server.</p></div>");
+    }
+  }).always(function () {
+    // Loading アイコンを削除
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .loading")).css('display', 'none');
+  });
+}
+
+
+
+/***/ }),
+
+/***/ "./ajax-player-info.js":
+/*!*****************************!*\
+  !*** ./ajax-player-info.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ajaxPostPlayerName": () => (/* binding */ ajaxPostPlayerName)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "../../node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _entry_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./entry.js */ "./entry.js");
+
+
+/**
+ * プレイヤー ID から プレイヤー情報を取り出す
+ * @param {*} target 親要素の ID(#) を取得
+ * @param {*} targetObject 検索したいプレイヤーのオブジェクト {id: "xxxxxx"}
+ */
+
+function ajaxPostPlayerName(target, targetObject) {
+  // Loading アイコンを表示
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .loading")).css('display', 'flex'); // 2つ目の API の処理
+
+  fetch("/json-api", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(targetObject)
+  }).then(function (res) {
+    if (!res.ok) {
+      throw new Error("Fetch: ".concat(res.status, " ").concat(res.statusText)); // 例外を投げるとcatch()へ行く
+    }
+
+    return res.json();
+  }).then(function (json) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .entry")).remove();
+    var playerName = json.playerName;
+    var careerKillRate = json.careerKillRate;
+    var seasonKillRate = json.seasonKillRate;
+    var avatar = json.avatarUrl;
+    var result = "\n      <section class=\"entry border-4 border-slate-800 mt-3 p-3\">\n        <h2 class=\"font-barlow_condensed text-xl text-center player-name\">".concat(playerName, "</h2>\n        <dl class=\"flex flex-wrap justify-between mt-2\">\n          <dt class=\"w-[110px] font-caveat text-xl text-gray-300\">season kill rate</dt>\n          <dd class=\"season-kill-rate font-bebas_neue text-xl text-right w-[calc(100%_-_110px)]\">").concat(seasonKillRate, "</dd>\n          <dt class=\"w-[110px] font-caveat text-xl text-gray-300\">career kill rate</dt>\n          <dd class=\"career-kill-rate font-bebas_neue text-xl text-right w-[calc(100%_-_110px)]\">").concat(careerKillRate, "</dd>\n        </dl>\n        <div class=\"custom-kill-rate justify-between mt-4 hidden\">\n          <label class=\"w-[110px] font-caveat text-xl text-gray-300\">custom rate</label>\n          <input type=\"number\" placeholder=\"1.74\" class=\"form-input w-[55px] border-0 bg-gray-700 placeholder-gray-500 text-xl text-amber-400 font-bebas_neue focus:ring-2 rounded-lg block py-0.5 px-3 placeholder:text-sm\">\n        </div>\n        <div class=\"mt-1 p-3 avatar\"><img class=\"rounded-md\" src=\"").concat(avatar, "\"></div>\n      </section>");
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target)).append(result); // エントリープレイヤーの配列に stats のオブジェクトを追加
+
+    var indexAry = jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target)).data("id");
+    _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[indexAry - 1] = {
+      player_name: playerName,
+      career: Number(careerKillRate),
+      season: Number(seasonKillRate),
+      avatar: avatar
+    };
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').empty();
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').empty();
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw').empty();
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#copy').remove(); // カスタムキルレートを使うにチェックが入っていれば input を表示する
+
+    if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#custom').prop('checked')) {
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').removeClass("hidden");
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').addClass("flex");
+    } // プレイヤー情報のキルレート表示のテキスト色
+
+
+    if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#season').prop("checked")) {
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').addClass("text-green-500");
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').addClass("text-gray-500");
+    } else if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#career').prop("checked")) {
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').addClass("text-gray-500");
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').addClass("text-green-500");
+    }
+  })["catch"](function (error) {
+    if (error.name === 'AbortError') {
+      console.error('プレイヤー情報取得でタイムアウトエラーです:', error);
+    } else {
+      console.error('プレイヤー情報取得でエラーです:', error);
+    }
+  })["finally"](function () {
+    // Loading アイコンを削除
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .loading")).css('display', 'none');
+  });
+}
+
+
+
+/***/ }),
+
+/***/ "./copy.js":
+/*!*****************!*\
+  !*** ./copy.js ***!
+  \*****************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "textData": () => (/* binding */ textData)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "../../node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+
+var draw = document.getElementById("draw");
+
+function textData(squadArray, squadNewKRSumAry, killRateAverage, squadMaxKillRate, squadMinKillRate) {
+  // 分割されたスクワッドの配列をキルレート順にソート
+  for (var i = 0; i < squadArray.length; i++) {
+    squadArray[i].sort(function (first, second) {
+      return second.kill_rate - first.kill_rate;
+    });
+  }
+
+  draw.insertAdjacentHTML("afterend", "\n  <div id=\"copy\" class=\"mt-20\">\n    <h3 class=\"text-slate-300 text-center text-2xl\">Text data for copying</h3>\n    <div id=\"do-copy\" class=\"flex justify-center relative\"><button id=\"click-copy\" class=\"text-lg bg-blue-700 hover:bg-blue-800 px-5 py-1 mt-5 rounded-lg\">Copy</button></div>\n  </div>");
+  var copyId = document.getElementById('copy');
+  copyId.insertAdjacentHTML("beforeend", "<div id=\"copy-txt\" class=\"flex justify-center text-slate-300 mt-10\">Average kill rate for this tournament: ".concat(killRateAverage.toFixed(2), "<br>\nMaximum kill rate difference: ").concat((squadMaxKillRate.toFixed(2) - squadMinKillRate.toFixed(2)).toFixed(2), "<br><br>\n\n--------------------<br><br>\n\n</div>")); // squadArray をキルレの高い順にソート
+
+  for (var _i = 0; _i < squadArray.length; _i++) {
+    squadArray[_i].sort(function (a, b) {
+      return b.kill_rate - a.kill_rate;
+    });
+  }
+
+  var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  var copyTxt = document.getElementById('copy-txt');
+
+  for (var _i2 = 0; _i2 < squadArray.length; _i2++) {
+    copyTxt.insertAdjacentHTML("beforeend", "Group ".concat(alphabet[_i2], "<br>\n"));
+
+    for (var j = 0; j < squadArray[_i2].length; j++) {
+      var resultText = "".concat(squadArray[_i2][j].player_name, ": ").concat(squadArray[_i2][j].kill_rate.toFixed(2), "<br>\n");
+      copyTxt.insertAdjacentHTML("beforeend", resultText);
+    }
+
+    copyTxt.insertAdjacentHTML("beforeend", "Average kill rate: ".concat((squadNewKRSumAry[_i2] / squadArray[_i2].length).toFixed(2), "<br>\n"));
+    copyTxt.insertAdjacentHTML("beforeend", "Total kill rate: ".concat(squadNewKRSumAry[_i2].toFixed(2), "<br><br>\n\n--------------------<br><br>\n\n"));
+  } // コピーができたかどうかの確認メッセージを出力する場所を作る
+
+
+  var copyResult = document.createElement("div");
+  copyResult.setAttribute("id", "copy-result");
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#do-copy').append(copyResult); // クリップボードにコピーする
+
+  var copyTarget = document.getElementById("click-copy");
+  copyTarget.addEventListener("click", function () {
+    var copyArea = document.getElementById("copy-txt");
+    copyTarget = copyArea.textContent;
+    var txt = document.createElement("textarea");
+    txt.value = copyTarget;
+    navigator.clipboard.writeText(copyTarget).then(function () {
+      copyResult.innerHTML = '<div class="success-copy animate-fadeIn font-bold text-lg text-green-700 absolute top-6 ml-3">Copied.</div>';
+    }, function () {
+      copyResult.innerHTML = '<div class="false-copy font-bold text-lg text-red-700 absolute top-6 ml-3">Copy failed.</div>';
+    });
+
+    if (!navigator.clipboard) {
+      alert("This browser does not support copying.");
+    }
+
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#copy-result').empty();
+  });
+}
+
+;
+
+
+/***/ }),
+
+/***/ "./csv-import.js":
+/*!***********************!*\
+  !*** ./csv-import.js ***!
+  \***********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "csvError": () => (/* binding */ csvError),
+/* harmony export */   "csvInput": () => (/* binding */ csvInput),
+/* harmony export */   "csvReader": () => (/* binding */ csvReader),
+/* harmony export */   "csvSame": () => (/* binding */ csvSame)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "../../node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _entry_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./entry.js */ "./entry.js");
+
+
+var fileInput = document.getElementById("file-input");
+var fileReader = new FileReader(); // ファイル変更時のイベント
+
+var csvInput = fileInput.onchange = function () {
+  var file = fileInput.files[0];
+  var fileSize = file.size; // ファイルサイズ
+
+  var maxFileSize = 1024 * 100; // 制限サイズ
+  // メッセージ表示用の Div を作成
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').remove();
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#header').append('<div class="csv-import-message text-center w-full p-5 animate-fadeIn"></div>');
+
+  if (file.type !== "text/csv" && file.type !== "application/vnd.ms-excel" && file.type !== "application/octet-stream") {
+    alert("Only CSV files can be uploaded."); // エラーメッセージを表示
+
+    fileInput.value = ""; // inputの中身をリセット
+
+    return; // この時点で処理を終了する
+  } else if (fileSize > maxFileSize) {
+    // ファイルサイズが制限以上の場合
+    alert("File size should be less than 100KB."); // エラーメッセージを表示
+
+    fileInput.value = ""; // inputの中身をリセット
+
+    return; // この時点で処理を終了する
+  } else {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').html("Now Loading...");
+    fileReader.readAsText(file); // ファイル名を出力
+
+    var fileName = file.name;
+    var label = fileInput.nextElementSibling;
+
+    if (!label.classList.contains("changed")) {
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').empty();
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').append("<p>".concat(fileName, "</p>"));
+    }
+  }
+}; // ファイル読み込み時
+
+
+var csvEntryArray = [];
+
+var csvReader = fileReader.onload = function () {
+  // ファイル読み込み
+  var fileResult = fileReader.result.split("\r\n"); // 先頭行をヘッダとして格納
+
+  var header = fileResult[0].split(","); // 先頭行の削除
+
+  fileResult.shift(); // CSVからエントリープレイヤーの配列を作る
+
+  csvEntryArray = fileResult.map(function (player) {
+    var datas = player.split(",");
+    var result = {};
+
+    for (var index in datas) {
+      var key = header[index];
+      result[key] = datas[index];
+    }
+
+    return result;
+  }); // entryArray を初期化
+
+  _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.splice(0); // 子要素を削除（エントリープレイヤー）
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').empty(); // csvデータを読み込みプレイヤー名を表示
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').append("<p class=\"text-green-600 text-xl\">".concat(csvEntryArray.length, " players loaded.</p>"));
+
+  for (var i = 0; i < csvEntryArray.length; i++) {
+    (0,_entry_js__WEBPACK_IMPORTED_MODULE_1__.newPlayerCreate)();
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("#player".concat(i + 1, " .input-player")).val(csvEntryArray[i].player_name);
+  }
+}; // ファイル読み取り失敗時
+
+
+var csvError = fileReader.onerror = function () {
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').append("Failed to read file.");
+}; // 同じファイルをアップロードできるようにする
+
+
+var csvSame = fileInput.addEventListener("click", function (e) {
+  e.target.value = "";
+});
+
+
+/***/ }),
+
+/***/ "./draw.js":
+/*!*****************!*\
+  !*** ./draw.js ***!
+  \*****************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "draw": () => (/* binding */ draw)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "../../node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _entry_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./entry.js */ "./entry.js");
+/* harmony import */ var _copy_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./copy.js */ "./copy.js");
+function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+
+
+
+/**
+ * キルレートの表示の色分け
+ */
+
+jquery__WEBPACK_IMPORTED_MODULE_0___default()('#season').on('click', function () {
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').removeClass("text-green-500 animate-fadeIn");
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').addClass("text-gray-500");
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').removeClass("text-gray-500 animate-fadeIn");
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').addClass("text-green-500 animate-fadeIn");
+});
+jquery__WEBPACK_IMPORTED_MODULE_0___default()('#career').on('click', function () {
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').removeClass("text-green-500 animate-fadeIn");
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').addClass("text-gray-500");
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').removeClass("text-gray-500 animate-fadeIn0");
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').addClass("text-green-500 animate-fadeIn");
+});
+jquery__WEBPACK_IMPORTED_MODULE_0___default()('#custom').on('click', function () {
+  if (jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).prop('checked')) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').addClass("flex");
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').removeClass("hidden");
+  } else {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').removeClass("flex");
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').addClass("hidden");
+  }
+}); // 抽選をする
+
+function draw() {
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn .loading').css('display', 'block');
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw').empty();
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').empty();
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').empty();
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-error').remove();
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#copy').remove();
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry').removeClass('warning');
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').remove(); // アニメーション用classを削除
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').removeClass("animate-fadeIn");
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').removeClass("animate-fadeIn"); // 入力フォームのエラーメッセージ
+
+  var playerNameClass = document.querySelectorAll(".input-player");
+
+  for (var i = 0; i < _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.length; i++) {
+    if (_entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[i] === undefined) {
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').after("\n      <div class=\"entry-error text-red-700 text-2xl mt-5 animate-fadeIn text-center\">\n        <p>No.".concat(i + 1, " player name has not been entered.</p>\n      </div>"));
+      playerNameClass[i].classList.add("error-empty"); // 抽選中の Loading を削除
+
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn .loading').css('display', 'none');
+      return;
+    } else {
+      playerNameClass[i].classList.remove("error-empty");
+    }
+  } // entryArray を deep copy
+
+
+  var drawArray = _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.map(function (elem) {
+    if (Array.isArray(elem)) {
+      return _toConsumableArray(elem);
+    } else if (_typeof(elem) == "object") {
+      return _objectSpread({}, elem);
+    } else return elem;
+  }); // 抽選用の連想配列を作り直す（シーズンキルレかキャリアキルレかカスタムキルレのどれを使うか）
+
+  for (var _i = 0; _i < drawArray.length; _i++) {
+    if (jquery__WEBPACK_IMPORTED_MODULE_0___default()(".custom-kill-rate input").eq(_i).val() !== "" && jquery__WEBPACK_IMPORTED_MODULE_0___default()('#custom').prop('checked')) {
+      // カスタムキルレートの入力があれば
+      drawArray[_i].kill_rate = Number(jquery__WEBPACK_IMPORTED_MODULE_0___default()(".custom-kill-rate input").eq(_i).val());
+      delete drawArray[_i].career;
+      delete drawArray[_i].season;
+    } else if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#career').prop("checked")) {
+      // キャリアキルレートを使う
+      drawArray[_i].kill_rate = _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[_i].career;
+      delete drawArray[_i].career;
+      delete drawArray[_i].season;
+    } else if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#season').prop("checked")) {
+      // シーズンキルレートを使う
+      drawArray[_i].kill_rate = _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[_i].season;
+      delete drawArray[_i].career;
+      delete drawArray[_i].season;
+    }
+  } // 抽選する条件
+
+
+  var adjust = Number(document.getElementById("adjust").value);
+  /**
+   * 配列をシャッフルする関
+   * @returns {array}
+   */
+
+  var shuffle = function shuffle(_ref) {
+    var _ref2 = _toArray(_ref),
+        array = _ref2.slice(0);
+
+    for (var _i2 = array.length - 1; _i2 >= 0; _i2--) {
+      var j = Math.floor(Math.random() * (_i2 + 1));
+      var _ref3 = [array[j], array[_i2]];
+      array[_i2] = _ref3[0];
+      array[j] = _ref3[1];
+    }
+
+    return array;
+  };
+  /**
+   * 組み合わせ抽選の処理
+   */
+
+
+  var count = 1;
+  var limit = 1000000;
+  setTimeout(function () {
+    var _loop = function _loop() {
+      //シャッフルした配列
+      var shuffleArray = shuffle(drawArray);
+      /**
+       * while for 文でチーム分けするために配列を分割
+       */
+
+      var squadArray = [];
+      var k = 0;
+      var m = 0; // 抽選されたスクワッドのキルレート
+
+      var squadKillRateSum = void 0;
+      var squadKillRateSumArray = []; // プレイヤー数
+
+      var playerSum = _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.length; // 最後のスクワッドを作る処理
+
+      if (playerSum % 3 == 1) {
+        while (k < playerSum) {
+          // 余りが1人で2人組スクワッドを2つ作る場合
+          if (k == playerSum - 4) {
+            // シャッフルされたメンバーの配列をスクワッド毎に分割
+            squadArray.push(shuffleArray.slice(k, playerSum - 2));
+            squadArray.push(shuffleArray.slice(k + 2, playerSum));
+            squadKillRateSum = squadArray[m].reduce(function (sum, j) {
+              return sum + j.kill_rate;
+            }, 0); // キルレートの合計を配列に追加
+
+            squadKillRateSumArray.push(squadKillRateSum); // キルレートの合計を配列に追加
+
+            squadKillRateSumArray.push(squadKillRateSum);
+            k = k + 3;
+          } // 通常の処理
+          else {
+            // シャッフルされたメンバーの配列をスクワッド毎に分割
+            squadArray.push(shuffleArray.slice(k, k + 3));
+            squadKillRateSum = squadArray[m].reduce(function (sum, j) {
+              return sum + j.kill_rate;
+            }, 0); // キルレートの合計を配列に追加
+
+            squadKillRateSumArray.push(squadKillRateSum);
+          }
+
+          k = k + 3, m++;
+        }
+      } // 通常の処理
+      else {
+        for (var _i3 = 0; _i3 < playerSum; _i3 = _i3 + 3, m++) {
+          // シャッフルされたメンバーの配列をスクワッド毎に分割
+          squadArray.push(shuffleArray.slice(_i3, _i3 + 3));
+          squadKillRateSum = squadArray[m].reduce(function (sum, j) {
+            return sum + j.kill_rate;
+          }, 0); // キルレートの合計を配列に追加
+
+          squadKillRateSumArray.push(squadKillRateSum);
+        }
+      }
+      /**
+       * 最大最小の合計キルレートの差分を判定
+       * @returns {boolean} 合計キルレートの差分が調整範囲(adjust)以内なら true
+       */
+
+
+      var compare = function compare() {
+        var maxKR = Math.max.apply(Math, squadKillRateSumArray);
+        var minKR = Math.min.apply(Math, squadKillRateSumArray);
+        var compareMaxMin = maxKR - minKR;
+        return compareMaxMin < adjust;
+      };
+
+      if (compare()) {
+        // トータルキルレート値
+        var killRateSum = drawArray.reduce(function (sum, i) {
+          return sum + i.kill_rate;
+        }, 0); // 平均のキルレート値
+
+        var killRateAverage = killRateSum / drawArray.length; // スクワッドの最大最小キルレートを変数にする
+
+        var squadMaxKillRate = Math.max.apply(Math, squadKillRateSumArray);
+        var squadMinKillRate = Math.min.apply(Math, squadKillRateSumArray);
+        var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""); // 抽選された各スクワッドの合計キルレートと全体の合計キルレートを比較し条件分岐
+
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').append("<div class=\"flex justify-center items-center\">\n            <h3 class=\"mr-10 text-green-700 text-5xl font-barlow_condensed font-bold\">Success!!</h3>\n            <div class=\"text-xl\">\n              <p>The ".concat(count.toLocaleString(), "th drawing found a combination that meets the requirements.</p>\n              <p class=\"mt-3\">The average kill rate for this tournament is <span class=\"text-amber-500\">").concat(killRateAverage.toFixed(2), "</span>.<br>Maximum kill rate difference is <span class=\"text-amber-500\">").concat((squadMaxKillRate.toFixed(2) - squadMinKillRate.toFixed(2)).toFixed(2), "</span>.</p>\n            </div>\n          </div>")); // 分割されたスクワッドの配列をキルレート順にソート
+
+        for (var _i4 = 0; _i4 < squadArray.length; _i4++) {
+          squadArray[_i4].sort(function (first, second) {
+            return first.kill_rate - second.kill_rate;
+          });
+        } // 余りのスクワッドが最後にならないように再度シャッフル(Groupをシャッフル)
+
+
+        squadArray = shuffle(squadArray);
+        var squadNewKRSumAry = []; // スクワッドのDivを作成しメンバーを配置
+
+        for (var _i5 = 0; _i5 < squadArray.length; _i5++) {
+          var createSquadSection = document.createElement("section");
+          var createSquadDiv = document.createElement("div");
+          createSquadDiv.classList.add("bg-slate-800", "p-4", "mt-2");
+          jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw').append(createSquadSection);
+          createSquadSection.appendChild(createSquadDiv);
+          createSquadSection.insertAdjacentHTML("afterbegin", "<h2 class=\"text-3xl font-anton\">Group ".concat(alphabet[_i5], "</h2>"));
+
+          for (var j = 0; j < squadArray[_i5].length; j++) {
+            var resultHtml = "\n            <div class=\"player grid grid-cols-[50px_1fr_40px] gap-3 mt-3\">\n              <figure><img src=\"".concat(squadArray[_i5][j].avatar, "\"></figure>\n              <div class=\"font-barlow_condensed text-xl leading-none break-all\">").concat(squadArray[_i5][j].player_name, "</div>\n              <div class=\"font-bebas_neue text-2xl leading-none text-right\">").concat(squadArray[_i5][j].kill_rate.toFixed(2), "</div>\n            </div>");
+            createSquadDiv.insertAdjacentHTML("afterbegin", resultHtml);
+            createSquadSection.appendChild(createSquadDiv);
+          }
+
+          createSquadDiv.insertAdjacentHTML("afterbegin", "\n          <div class=\"player-header font-caveat text-xl grid grid-cols-[1fr_70px] justify-items-center mb-6\">\n            <div class=\"pl-7\">player name</div>\n            <div>kill rate</div>\n          </div>"); // スクワッドの合計・平均キルレート
+
+          var squadNewKRSum = squadArray[_i5].reduce(function (sum, j) {
+            return sum + j.kill_rate;
+          }, 0);
+
+          squadNewKRSumAry.push(squadNewKRSum);
+          createSquadDiv.insertAdjacentHTML("beforeend", "<div class=\"kill-rate-average font-caveat text-xl mt-5 text-right\">Average kill rate: ".concat((squadNewKRSumAry[_i5] / squadArray[_i5].length).toFixed(2), "</div>"));
+          createSquadDiv.insertAdjacentHTML("beforeend", "<div class=\"kill-rate-sum text-xl font-caveat text-right\"><span>Total kill rate: ".concat(squadNewKRSumAry[_i5].toFixed(2), "</span></div>"));
+        } // スクワッドの最大最小キルレートを変数にする
+
+
+        squadMaxKillRate = Math.max.apply(Math, squadNewKRSumAry);
+        squadMinKillRate = Math.min.apply(Math, squadNewKRSumAry); // 配列の順序[i]を取得
+
+        var squadMaxKillRatePosition = squadNewKRSumAry.indexOf(squadMaxKillRate);
+        var squadMinKillRatePosition = squadNewKRSumAry.indexOf(squadMinKillRate); // 最強スクワッドにclassを追加
+
+        var strongSquad = document.querySelectorAll("#draw > section");
+        strongSquad[squadMaxKillRatePosition].classList.add("strong-squad"); // 最弱スクワッドにclassを追加
+
+        var weakSquad = document.querySelectorAll("#draw > section");
+        weakSquad[squadMinKillRatePosition].classList.add("weak-squad");
+        (0,_copy_js__WEBPACK_IMPORTED_MODULE_2__.textData)(squadArray, squadNewKRSumAry, killRateAverage, squadMaxKillRate, squadMinKillRate); // エントリープレイヤーの重複チェック
+
+        var duplicateArrey = [];
+        _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.filter(function (val) {
+          // player_name だけを配列にする
+          duplicateArrey.push(val.player_name);
+        }); // 重複しているエントリープレイヤー
+
+        var duplicatePlayer = duplicateArrey.filter(function (val, i, array) {
+          return !(array.indexOf(val) === i);
+        });
+
+        if (duplicatePlayer.length) {
+          jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').append("<p class=\"warning\">Warning: Player name <span class=\"font-bold\">[".concat(duplicatePlayer, "]</span> is duplicated.</p>"));
+
+          for (var _i6 = 0; _i6 < duplicatePlayer.length; _i6++) {
+            for (var _j = 0; _j < _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.length; _j++) {
+              if (duplicatePlayer[_i6] == _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[_j].player_name) {
+                jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry').eq(_j).addClass('warning');
+              }
+            }
+          }
+
+          jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').addClass("animate-fadeIn");
+        } // 抽選中の Loading を削除
+
+
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn .loading').css('display', 'none');
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').addClass("animate-fadeIn");
+        return "break";
+      } else if (count == limit) {
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').addClass("animate-fadeIn");
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').append("\n        <div class=\"flex justify-center items-center\">\n          <h3 class=\"mr-10 text-red-700 text-5xl font-barlow_condensed font-bold\">Not Found.</h3>\n          <div class=\"text-xl\">\n            <p>We have drawn ".concat(count.toLocaleString(), " and could not find a combination that meets the requirements.<br>\n            Please perform the drawing again or change the kill rate tolerance.</p>\n          </div>\n        </div>")); // 抽選中の Loading を削除
+
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn .loading').css('display', 'none');
+      }
+
+      count++;
+    };
+
+    while (count <= limit) {
+      var _ret = _loop();
+
+      if (_ret === "break") break;
+    }
+  }, 100);
+}
+
+; // Draw ボタンクリック時の CSS 操作
+
+jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn button').on('mousedown', function () {
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('button').addClass('focus:ring-4 focus:ring-blue-300');
+});
+jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn button').on('mouseup', function () {
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('button').removeClass('focus:ring-4 focus:ring-blue-300');
+});
+
+
+/***/ }),
+
+/***/ "./entry.js":
+/*!******************!*\
+  !*** ./entry.js ***!
+  \******************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "deletePlayer": () => (/* binding */ deletePlayer),
+/* harmony export */   "entryArray": () => (/* binding */ entryArray),
+/* harmony export */   "newPlayerCreate": () => (/* binding */ newPlayerCreate)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "../../node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+
+var entryArray = []; // エントリープレイヤーの配列初期値
+
+var maxPlayer = 100; // 対応人数
+
+var entryPlayerNum = 18; // 初期エントリープレイヤー人数
+
+/**
+ *  初期値のエントリーフォームを作成
+ */
+
+(function () {
+  for (var i = 0; i < entryPlayerNum; i++) {
+    newPlayerCreate();
+  } // 通し番号を振る
+
+
+  serialNumber();
+})(); // 入力しているフォームを判別するための連番を振る
+
+
+function serialNumber() {
+  // ラベルに連番を振る
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player .entry-number').each(function (i) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).text("No.".concat(i + 1));
+  }); // ID に連番を振る
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player').each(function (i) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).attr('id', 'player' + (i + 1));
+  }); // data-id に連番を振る (.entry-player)
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player').each(function (i) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('id', i + 1);
+  }); // data-id に連番を振る (input)
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.input-player').each(function (i) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('id', i + 1);
+  }); // data-id に連番を振る (delete)
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.delete').each(function (i) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('id', i + 1);
+  });
+}
+/**
+ * 新しいエントリーフォームを追加
+ */
+
+
+function newPlayerCreate() {
+  // エラーメッセージの子要素があれば削除
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-error').remove();
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-errore').removeClass("animate-fadeIn");
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()("#add-button").remove();
+  var newEntryDiv = document.createElement("div");
+  var newLabel = document.createElement("label");
+  var newEntry = document.createElement("input");
+  var playerSelect = document.createElement("div");
+  var loadingIcon = document.createElement('div');
+  var closeBtn = document.createElement("div"); // プレイヤー数
+
+  var playerSum = document.getElementsByClassName("entry-player").length; // プレイヤー名入力の親Div作成
+
+  if (playerSum < maxPlayer) {
+    newEntryDiv.className = "entry-player relative";
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').append(newEntryDiv);
+    newLabel.className = "entry-number block mb-0.5 text-lg text-gray-300 font-caveat";
+    newEntryDiv.appendChild(newLabel); // プレイヤー名入力 <input> 作成
+
+    newEntry.setAttribute("type", "text");
+    newEntry.className = "input-player form-input border-0 bg-gray-700 placeholder-gray-500 text-white focus:ring-2 rounded-lg block w-full p-2.5 placeholder:font-caveat placeholder:text-xl";
+    newEntry.setAttribute("placeholder", "player name");
+    newEntry.setAttribute("required", "");
+    newEntry.setAttribute("autocomplete", "off");
+    newEntryDiv.appendChild(newEntry); // プレイヤー候補出力用の空 Div
+
+    playerSelect.className = "player-select";
+    newEntryDiv.append(playerSelect); // Close ボタン
+
+    closeBtn.className = "delete z-10";
+    newEntryDiv.append(closeBtn); // Loading アイコン
+
+    loadingIcon.className = "justify-center space-x-1 absolute top-1 right-7 z-10 hidden loading";
+    loadingIcon.insertAdjacentHTML("beforeend", "<div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full\"></div>\n      <div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full animation-delay-100\"></div>\n      <div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full animation-delay-200\"></div>\n      <div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full animation-delay-300\"></div>\n      <div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full animation-delay-400\"></div>");
+    newEntryDiv.append(loadingIcon); // 通し番号を振る
+
+    serialNumber(); // エントリー追加アイコンを設置
+
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').append('<div id="add-button" class="hover:opacity-50 hover:cursor-pointer"><img src="./images/plus-icon.png" alt="メンバー追加">'); // エントリープレイヤーの配列にプッシュ
+
+    entryArray.push(undefined);
+  } // 人数超過のエラーメッセージ
+
+
+  if (playerSum >= maxPlayer) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').after("<div class=\"entry-error animate-fadeIn\"><p class=\"error\">Up to ".concat(maxPlayer, " players can participate.</p></div>")); // エントリー追加アイコンを設置
+
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').append('<div id="add-button" class="hover:opacity-50 hover:cursor-pointer"><img src="./images/plus-icon.png" alt="メンバー追加">');
+  }
+} // 任意のエントリープレイヤーを削除する関数
+
+
+function deletePlayer(event) {
+  // エラーメッセージの子要素があれば削除
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-error').empty();
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').remove();
+  var deleteTarget = "#player".concat(jquery__WEBPACK_IMPORTED_MODULE_0___default()(event.currentTarget).data("id")); // 親要素の ID を設定
+  // エントリープレイヤーの配列から指定プレイヤーを削除
+
+  var indexAry = jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(deleteTarget)).data("id");
+  entryArray.splice(indexAry - 1, 1);
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()(deleteTarget).remove(); // data-id に連番を振りなおす (.entry-player)
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player').each(function (i) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('id', i + 1);
+  }); // ラベルに連番を振りなおす
+
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player .entry-number').each(function (i) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).text("No.".concat(i + 1));
+  });
+}
+
+; // エラー表示の input に forcs したらエラー表示用の class を削除
+
+jquery__WEBPACK_IMPORTED_MODULE_0___default()('.input-player').on('focus', function () {
+  jquery__WEBPACK_IMPORTED_MODULE_0___default()('input').removeClass('error-empty');
+});
+
+
+/***/ }),
+
+/***/ "../../node_modules/jquery/dist/jquery.js":
+/*!************************************************!*\
+  !*** ../../node_modules/jquery/dist/jquery.js ***!
+  \************************************************/
 /***/ (function(module, exports) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -10888,851 +11757,9 @@ return jQuery;
 } );
 
 
-/***/ }),
-/* 2 */
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "doAjax": () => (/* binding */ doAjax)
-/* harmony export */ });
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _ajax_player_info_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
-
-
-/**
- * Ajax 通信（サーバにプレイヤー名を送り絞り込んだプレイヤー名を返してもらう）
- * @param {object} data API通信用のプレイヤー名 Object {'player': プレイヤー名}
- * @param {Element} target 親要素の ID(#) を取得(プレイヤー名が入力されたDiv)
- */
-
-var jqXHR = null;
-
-function doAjax(data, target) {
-  // ajax 通信中の場合 ajax 通信をキャンセル
-  if (jqXHR) {
-    jqXHR.abort();
-  } // ajax 通信処理の返り値を jqxhr にセット(↑これで上記の条件分岐ができる)
-  // Loading アイコンを表示
-
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .loading")).css('display', 'flex');
-  jqXHR = jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
-    type: 'POST',
-    url: '/json-search',
-    data: JSON.stringify(data),
-    contentType: 'application/json',
-    dataType: 'json',
-    timeout: 10000
-  }).done(function (json) {
-    // 子要素を削除
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.player-select').empty(); // プレイヤー候補名を表示
-
-    var li = '';
-
-    for (var i = 0; i < json.length; i++) {
-      li += "\n      <li class=\"player-choice\" style=\"background-image: url(".concat(json[i].avatarUrl, ");\">\n        ").concat(json[i].displayName, "\n      </li>");
-    }
-
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .player-select")).append("<ul class=\"player-list bg-gray-800 w-[120%] mt-1.5 absolute z-50\">".concat(li, "</ul>")); // プレイヤー候補名一覧からプレイヤーを選択したときの処理
-
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.player-list li').on('click', function (event) {
-      // 次の API 通信で使うデータを作成
-      var targetObject = {
-        'id': null
-      };
-      var listIndex = jquery__WEBPACK_IMPORTED_MODULE_0___default()(event.target).index(); // クリックした li の添字
-
-      targetObject.id = "".concat(json[listIndex].playFabId); // API サーバに送るプレイヤーID
-      // プレイヤー ID から プレイヤー情報を取り出す
-
-      (0,_ajax_player_info_js__WEBPACK_IMPORTED_MODULE_1__.ajaxPostPlayerName)(target, targetObject);
-    }); // 検索結果のプレイヤー一覧を消す
-
-    if (jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .player-list")).length) {
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()(document).on('click', function () {
-        jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .player-list")).remove();
-      });
-    } // 絞り込みが1件だった場合は自動でプレイヤー情報を出力
-
-
-    if (json.length === 1) {
-      var targetPlayerID = json[0].playFabId; // 配列からプレイヤー ID を取得
-
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.player-list').remove(); // 次の API 通信で使うデータを作成
-
-      var targetObject = {
-        'id': null
-      };
-      targetObject.id = targetPlayerID; // プレイヤー ID から プレイヤー情報を取り出す
-
-      (0,_ajax_player_info_js__WEBPACK_IMPORTED_MODULE_1__.ajaxPostPlayerName)(target, targetObject);
-    } // 絞り込み結果が 0 件の場合 No Data と出力
-
-
-    if (json.length === 0) {
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .player-select")).append("<div class=\"player-list\">No Data</div>");
-    }
-  }).fail(function (jqXHR, textStatus, errorThrown) {
-    // console.log(jqXHR, textStatus, errorThrown);
-    if (textStatus === "timeout") {
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').after("<div class=\"entry-error animate-fadeIn\"><p class=\"error\">Timeout error.<br>No response from api server.</p></div>");
-    }
-  }).always(function () {
-    // Loading アイコンを削除
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .loading")).css('display', 'none');
-  });
-}
-
-
-
-/***/ }),
-/* 3 */
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "ajaxPostPlayerName": () => (/* binding */ ajaxPostPlayerName)
-/* harmony export */ });
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _entry_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-
-
-/**
- * プレイヤー ID から プレイヤー情報を取り出す
- * @param {*} target 親要素の ID(#) を取得
- * @param {*} targetObject 検索したいプレイヤーのオブジェクト {id: "xxxxxx"}
- */
-
-function ajaxPostPlayerName(target, targetObject) {
-  // Loading アイコンを表示
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .loading")).css('display', 'flex'); // 2つ目の API の処理
-
-  fetch("/json-api", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(targetObject)
-  }).then(function (res) {
-    if (!res.ok) {
-      throw new Error("Fetch: ".concat(res.status, " ").concat(res.statusText)); // 例外を投げるとcatch()へ行く
-    }
-
-    return res.json();
-  }).then(function (json) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .entry")).remove();
-    var playerName = json.playerName;
-    var careerKillRate = json.careerKillRate;
-    var seasonKillRate = json.seasonKillRate;
-    var avatar = json.avatarUrl;
-    var result = "\n      <section class=\"entry border-4 border-slate-800 mt-3 p-3\">\n        <h2 class=\"font-barlow_condensed text-xl text-center player-name\">".concat(playerName, "</h2>\n        <dl class=\"flex flex-wrap justify-between mt-2\">\n          <dt class=\"w-[110px] font-caveat text-xl text-gray-300\">season kill rate</dt>\n          <dd class=\"season-kill-rate font-bebas_neue text-xl text-right w-[calc(100%_-_110px)]\">").concat(seasonKillRate, "</dd>\n          <dt class=\"w-[110px] font-caveat text-xl text-gray-300\">career kill rate</dt>\n          <dd class=\"career-kill-rate font-bebas_neue text-xl text-right w-[calc(100%_-_110px)]\">").concat(careerKillRate, "</dd>\n        </dl>\n        <div class=\"custom-kill-rate justify-between mt-4 hidden\">\n          <label class=\"w-[110px] font-caveat text-xl text-gray-300\">custom rate</label>\n          <input type=\"number\" placeholder=\"1.74\" class=\"form-input w-[55px] border-0 bg-gray-700 placeholder-gray-500 text-xl text-amber-400 font-bebas_neue focus:ring-2 rounded-lg block py-0.5 px-3 placeholder:text-sm\">\n        </div>\n        <div class=\"mt-1 p-3 avatar\"><img class=\"rounded-md\" src=\"").concat(avatar, "\"></div>\n      </section>");
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target)).append(result); // エントリープレイヤーの配列に stats のオブジェクトを追加
-
-    var indexAry = jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target)).data("id");
-    _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[indexAry - 1] = {
-      player_name: playerName,
-      career: Number(careerKillRate),
-      season: Number(seasonKillRate),
-      avatar: avatar
-    };
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').empty();
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').empty();
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw').empty();
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#copy').remove(); // カスタムキルレートを使うにチェックが入っていれば input を表示する
-
-    if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#custom').prop('checked')) {
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').removeClass("hidden");
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').addClass("flex");
-    } // プレイヤー情報のキルレート表示のテキスト色
-
-
-    if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#season').prop("checked")) {
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').addClass("text-green-500");
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').addClass("text-gray-500");
-    } else if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#career').prop("checked")) {
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').addClass("text-gray-500");
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').addClass("text-green-500");
-    }
-  })["catch"](function (error) {
-    if (error.name === 'AbortError') {
-      console.error('プレイヤー情報取得でタイムアウトエラーです:', error);
-    } else {
-      console.error('プレイヤー情報取得でエラーです:', error);
-    }
-  })["finally"](function () {
-    // Loading アイコンを削除
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(target, " .loading")).css('display', 'none');
-  });
-}
-
-
-
-/***/ }),
-/* 4 */
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "deletePlayer": () => (/* binding */ deletePlayer),
-/* harmony export */   "entryArray": () => (/* binding */ entryArray),
-/* harmony export */   "newPlayerCreate": () => (/* binding */ newPlayerCreate)
-/* harmony export */ });
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-
-var entryArray = []; // エントリープレイヤーの配列初期値
-
-var maxPlayer = 100; // 対応人数
-
-var entryPlayerNum = 18; // 初期エントリープレイヤー人数
-
-/**
- *  初期値のエントリーフォームを作成
- */
-
-(function () {
-  for (var i = 0; i < entryPlayerNum; i++) {
-    newPlayerCreate();
-  } // 通し番号を振る
-
-
-  serialNumber();
-})(); // 入力しているフォームを判別するための連番を振る
-
-
-function serialNumber() {
-  // ラベルに連番を振る
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player .entry-number').each(function (i) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).text("No.".concat(i + 1));
-  }); // ID に連番を振る
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player').each(function (i) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).attr('id', 'player' + (i + 1));
-  }); // data-id に連番を振る (.entry-player)
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player').each(function (i) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('id', i + 1);
-  }); // data-id に連番を振る (input)
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.input-player').each(function (i) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('id', i + 1);
-  }); // data-id に連番を振る (delete)
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.delete').each(function (i) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('id', i + 1);
-  });
-}
-/**
- * 新しいエントリーフォームを追加
- */
-
-
-function newPlayerCreate() {
-  // エラーメッセージの子要素があれば削除
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-error').remove();
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-errore').removeClass("animate-fadeIn");
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()("#add-button").remove();
-  var newEntryDiv = document.createElement("div");
-  var newLabel = document.createElement("label");
-  var newEntry = document.createElement("input");
-  var playerSelect = document.createElement("div");
-  var loadingIcon = document.createElement('div');
-  var closeBtn = document.createElement("div"); // プレイヤー数
-
-  var playerSum = document.getElementsByClassName("entry-player").length; // プレイヤー名入力の親Div作成
-
-  if (playerSum < maxPlayer) {
-    newEntryDiv.className = "entry-player relative";
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').append(newEntryDiv);
-    newLabel.className = "entry-number block mb-0.5 text-lg text-gray-300 font-caveat";
-    newEntryDiv.appendChild(newLabel); // プレイヤー名入力 <input> 作成
-
-    newEntry.setAttribute("type", "text");
-    newEntry.className = "input-player form-input border-0 bg-gray-700 placeholder-gray-500 text-white focus:ring-2 rounded-lg block w-full p-2.5 placeholder:font-caveat placeholder:text-xl";
-    newEntry.setAttribute("placeholder", "player name");
-    newEntry.setAttribute("required", "");
-    newEntry.setAttribute("autocomplete", "off");
-    newEntryDiv.appendChild(newEntry); // プレイヤー候補出力用の空 Div
-
-    playerSelect.className = "player-select";
-    newEntryDiv.append(playerSelect); // Close ボタン
-
-    closeBtn.className = "delete z-10";
-    newEntryDiv.append(closeBtn); // Loading アイコン
-
-    loadingIcon.className = "justify-center space-x-1 absolute top-1 right-7 z-10 hidden loading";
-    loadingIcon.insertAdjacentHTML("beforeend", "<div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full\"></div>\n      <div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full animation-delay-100\"></div>\n      <div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full animation-delay-200\"></div>\n      <div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full animation-delay-300\"></div>\n      <div class=\"animate-ping  h-3 w-0.5 bg-blue-600 rounded-full animation-delay-400\"></div>");
-    newEntryDiv.append(loadingIcon); // 通し番号を振る
-
-    serialNumber(); // エントリー追加アイコンを設置
-
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').append('<div id="add-button" class="hover:opacity-50 hover:cursor-pointer"><img src="./images/plus-icon.png" alt="メンバー追加">'); // エントリープレイヤーの配列にプッシュ
-
-    entryArray.push(undefined);
-  } // 人数超過のエラーメッセージ
-
-
-  if (playerSum >= maxPlayer) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').after("<div class=\"entry-error animate-fadeIn\"><p class=\"error\">Up to ".concat(maxPlayer, " players can participate.</p></div>")); // エントリー追加アイコンを設置
-
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').append('<div id="add-button" class="hover:opacity-50 hover:cursor-pointer"><img src="./images/plus-icon.png" alt="メンバー追加">');
-  }
-} // 任意のエントリープレイヤーを削除する関数
-
-
-function deletePlayer(event) {
-  // エラーメッセージの子要素があれば削除
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-error').empty();
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').remove();
-  var deleteTarget = "#player".concat(jquery__WEBPACK_IMPORTED_MODULE_0___default()(event.currentTarget).data("id")); // 親要素の ID を設定
-  // エントリープレイヤーの配列から指定プレイヤーを削除
-
-  var indexAry = jquery__WEBPACK_IMPORTED_MODULE_0___default()("".concat(deleteTarget)).data("id");
-  entryArray.splice(indexAry - 1, 1);
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()(deleteTarget).remove(); // data-id に連番を振りなおす (.entry-player)
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player').each(function (i) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).data('id', i + 1);
-  }); // ラベルに連番を振りなおす
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-player .entry-number').each(function (i) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).text("No.".concat(i + 1));
-  });
-}
-
-; // エラー表示の input に forcs したらエラー表示用の class を削除
-
-jquery__WEBPACK_IMPORTED_MODULE_0___default()('.input-player').on('focus', function () {
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('input').removeClass('error-empty');
-});
-
-
-/***/ }),
-/* 5 */
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "draw": () => (/* binding */ draw)
-/* harmony export */ });
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _entry_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-/* harmony import */ var _copy_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
-function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-
-
-
-/**
- * キルレートの表示の色分け
- */
-
-jquery__WEBPACK_IMPORTED_MODULE_0___default()('#season').on('click', function () {
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').removeClass("text-green-500 animate-fadeIn");
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').addClass("text-gray-500");
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').removeClass("text-gray-500 animate-fadeIn");
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').addClass("text-green-500 animate-fadeIn");
-});
-jquery__WEBPACK_IMPORTED_MODULE_0___default()('#career').on('click', function () {
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').removeClass("text-green-500 animate-fadeIn");
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.season-kill-rate').addClass("text-gray-500");
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').removeClass("text-gray-500 animate-fadeIn0");
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.career-kill-rate').addClass("text-green-500 animate-fadeIn");
-});
-jquery__WEBPACK_IMPORTED_MODULE_0___default()('#custom').on('click', function () {
-  if (jquery__WEBPACK_IMPORTED_MODULE_0___default()(this).prop('checked')) {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').addClass("flex");
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').removeClass("hidden");
-  } else {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').removeClass("flex");
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.custom-kill-rate').addClass("hidden");
-  }
-}); // 抽選をする
-
-function draw() {
-  console.log('eee');
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn .loading').css('display', 'block');
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw').empty();
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').empty();
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').empty();
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry-error').remove();
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#copy').remove();
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry').removeClass('warning');
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').remove(); // アニメーション用classを削除
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').removeClass("animate-fadeIn");
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').removeClass("animate-fadeIn"); // 入力フォームのエラーメッセージ
-
-  var playerNameClass = document.querySelectorAll(".input-player");
-
-  for (var i = 0; i < _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.length; i++) {
-    if (_entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[i] === undefined) {
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').after("\n      <div class=\"entry-error text-red-700 text-2xl mt-5 animate-fadeIn text-center\">\n        <p>No.".concat(i + 1, " player name has not been entered.</p>\n      </div>"));
-      playerNameClass[i].classList.add("error-empty"); // 抽選中の Loading を削除
-
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn .loading').css('display', 'none');
-      return;
-    } else {
-      playerNameClass[i].classList.remove("error-empty");
-    }
-  } // entryArray を deep copy
-
-
-  var drawArray = _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.map(function (elem) {
-    if (Array.isArray(elem)) {
-      return _toConsumableArray(elem);
-    } else if (_typeof(elem) == "object") {
-      return _objectSpread({}, elem);
-    } else return elem;
-  }); // 抽選用の連想配列を作り直す（シーズンキルレかキャリアキルレかカスタムキルレのどれを使うか）
-
-  for (var _i = 0; _i < drawArray.length; _i++) {
-    if (jquery__WEBPACK_IMPORTED_MODULE_0___default()(".custom-kill-rate input").eq(_i).val() !== "" && jquery__WEBPACK_IMPORTED_MODULE_0___default()('#custom').prop('checked')) {
-      // カスタムキルレートの入力があれば
-      drawArray[_i].kill_rate = Number(jquery__WEBPACK_IMPORTED_MODULE_0___default()(".custom-kill-rate input").eq(_i).val());
-      delete drawArray[_i].career;
-      delete drawArray[_i].season;
-    } else if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#career').prop("checked")) {
-      // キャリアキルレートを使う
-      drawArray[_i].kill_rate = _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[_i].career;
-      delete drawArray[_i].career;
-      delete drawArray[_i].season;
-    } else if (jquery__WEBPACK_IMPORTED_MODULE_0___default()('#season').prop("checked")) {
-      // シーズンキルレートを使う
-      drawArray[_i].kill_rate = _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[_i].season;
-      delete drawArray[_i].career;
-      delete drawArray[_i].season;
-    }
-  } // 抽選する条件
-
-
-  var adjust = Number(document.getElementById("adjust").value);
-  /**
-   * 配列をシャッフルする関
-   * @returns {array}
-   */
-
-  var shuffle = function shuffle(_ref) {
-    var _ref2 = _toArray(_ref),
-        array = _ref2.slice(0);
-
-    for (var _i2 = array.length - 1; _i2 >= 0; _i2--) {
-      var j = Math.floor(Math.random() * (_i2 + 1));
-      var _ref3 = [array[j], array[_i2]];
-      array[_i2] = _ref3[0];
-      array[j] = _ref3[1];
-    }
-
-    return array;
-  };
-  /**
-   * 組み合わせ抽選の処理
-   */
-
-
-  var count = 1;
-  var limit = 1000000;
-  setTimeout(function () {
-    var _loop = function _loop() {
-      //シャッフルした配列
-      var shuffleArray = shuffle(drawArray);
-      /**
-       * while for 文でチーム分けするために配列を分割
-       */
-
-      var squadArray = [];
-      var k = 0;
-      var m = 0; // 抽選されたスクワッドのキルレート
-
-      var squadKillRateSum = void 0;
-      var squadKillRateSumArray = []; // プレイヤー数
-
-      var playerSum = _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.length; // 最後のスクワッドを作る処理
-
-      if (playerSum % 3 == 1) {
-        while (k < playerSum) {
-          // 余りが1人で2人組スクワッドを2つ作る場合
-          if (k == playerSum - 4) {
-            // シャッフルされたメンバーの配列をスクワッド毎に分割
-            squadArray.push(shuffleArray.slice(k, playerSum - 2));
-            squadArray.push(shuffleArray.slice(k + 2, playerSum));
-            squadKillRateSum = squadArray[m].reduce(function (sum, j) {
-              return sum + j.kill_rate;
-            }, 0); // キルレートの合計を配列に追加
-
-            squadKillRateSumArray.push(squadKillRateSum); // キルレートの合計を配列に追加
-
-            squadKillRateSumArray.push(squadKillRateSum);
-            k = k + 3;
-          } // 通常の処理
-          else {
-            // シャッフルされたメンバーの配列をスクワッド毎に分割
-            squadArray.push(shuffleArray.slice(k, k + 3));
-            squadKillRateSum = squadArray[m].reduce(function (sum, j) {
-              return sum + j.kill_rate;
-            }, 0); // キルレートの合計を配列に追加
-
-            squadKillRateSumArray.push(squadKillRateSum);
-          }
-
-          k = k + 3, m++;
-        }
-      } // 通常の処理
-      else {
-        for (var _i3 = 0; _i3 < playerSum; _i3 = _i3 + 3, m++) {
-          // シャッフルされたメンバーの配列をスクワッド毎に分割
-          squadArray.push(shuffleArray.slice(_i3, _i3 + 3));
-          squadKillRateSum = squadArray[m].reduce(function (sum, j) {
-            return sum + j.kill_rate;
-          }, 0); // キルレートの合計を配列に追加
-
-          squadKillRateSumArray.push(squadKillRateSum);
-        }
-      }
-      /**
-       * 最大最小の合計キルレートの差分を判定
-       * @returns {boolean} 合計キルレートの差分が調整範囲(adjust)以内なら true
-       */
-
-
-      var compare = function compare() {
-        var maxKR = Math.max.apply(Math, squadKillRateSumArray);
-        var minKR = Math.min.apply(Math, squadKillRateSumArray);
-        var compareMaxMin = maxKR - minKR;
-        return compareMaxMin < adjust;
-      };
-
-      if (compare()) {
-        // トータルキルレート値
-        var killRateSum = drawArray.reduce(function (sum, i) {
-          return sum + i.kill_rate;
-        }, 0); // 平均のキルレート値
-
-        var killRateAverage = killRateSum / drawArray.length; // スクワッドの最大最小キルレートを変数にする
-
-        var squadMaxKillRate = Math.max.apply(Math, squadKillRateSumArray);
-        var squadMinKillRate = Math.min.apply(Math, squadKillRateSumArray);
-        var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""); // 抽選された各スクワッドの合計キルレートと全体の合計キルレートを比較し条件分岐
-
-        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').append("<div class=\"flex justify-center items-center\">\n            <h3 class=\"mr-10 text-green-700 text-5xl font-barlow_condensed font-bold\">Success!!</h3>\n            <div class=\"text-xl\">\n              <p>The ".concat(count.toLocaleString(), "th drawing found a combination that meets the requirements.</p>\n              <p class=\"mt-3\">The average kill rate for this tournament is <span class=\"text-amber-500\">").concat(killRateAverage.toFixed(2), "</span>.<br>Maximum kill rate difference is <span class=\"text-amber-500\">").concat((squadMaxKillRate.toFixed(2) - squadMinKillRate.toFixed(2)).toFixed(2), "</span>.</p>\n            </div>\n          </div>")); // 分割されたスクワッドの配列をキルレート順にソート
-
-        for (var _i4 = 0; _i4 < squadArray.length; _i4++) {
-          squadArray[_i4].sort(function (first, second) {
-            return first.kill_rate - second.kill_rate;
-          });
-        } // 余りのスクワッドが最後にならないように再度シャッフル(Groupをシャッフル)
-
-
-        squadArray = shuffle(squadArray);
-        var squadNewKRSumAry = []; // スクワッドのDivを作成しメンバーを配置
-
-        for (var _i5 = 0; _i5 < squadArray.length; _i5++) {
-          var createSquadSection = document.createElement("section");
-          var createSquadDiv = document.createElement("div");
-          createSquadDiv.classList.add("bg-slate-800", "p-4", "mt-2");
-          jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw').append(createSquadSection);
-          createSquadSection.appendChild(createSquadDiv);
-          createSquadSection.insertAdjacentHTML("afterbegin", "<h2 class=\"text-3xl font-anton\">Group ".concat(alphabet[_i5], "</h2>"));
-
-          for (var j = 0; j < squadArray[_i5].length; j++) {
-            var resultHtml = "\n            <div class=\"player grid grid-cols-[50px_1fr_40px] gap-3 mt-3\">\n              <figure><img src=\"".concat(squadArray[_i5][j].avatar, "\"></figure>\n              <div class=\"font-barlow_condensed text-xl leading-none break-all\">").concat(squadArray[_i5][j].player_name, "</div>\n              <div class=\"font-bebas_neue text-2xl leading-none text-right\">").concat(squadArray[_i5][j].kill_rate.toFixed(2), "</div>\n            </div>");
-            createSquadDiv.insertAdjacentHTML("afterbegin", resultHtml);
-            createSquadSection.appendChild(createSquadDiv);
-          }
-
-          createSquadDiv.insertAdjacentHTML("afterbegin", "\n          <div class=\"player-header font-caveat text-xl grid grid-cols-[1fr_70px] justify-items-center mb-6\">\n            <div class=\"pl-7\">player name</div>\n            <div>kill rate</div>\n          </div>"); // スクワッドの合計・平均キルレート
-
-          var squadNewKRSum = squadArray[_i5].reduce(function (sum, j) {
-            return sum + j.kill_rate;
-          }, 0);
-
-          squadNewKRSumAry.push(squadNewKRSum);
-          createSquadDiv.insertAdjacentHTML("beforeend", "<div class=\"kill-rate-average font-caveat text-xl mt-5 text-right\">Average kill rate: ".concat((squadNewKRSumAry[_i5] / squadArray[_i5].length).toFixed(2), "</div>"));
-          createSquadDiv.insertAdjacentHTML("beforeend", "<div class=\"kill-rate-sum text-xl font-caveat text-right\"><span>Total kill rate: ".concat(squadNewKRSumAry[_i5].toFixed(2), "</span></div>"));
-        } // スクワッドの最大最小キルレートを変数にする
-
-
-        squadMaxKillRate = Math.max.apply(Math, squadNewKRSumAry);
-        squadMinKillRate = Math.min.apply(Math, squadNewKRSumAry); // 配列の順序[i]を取得
-
-        var squadMaxKillRatePosition = squadNewKRSumAry.indexOf(squadMaxKillRate);
-        var squadMinKillRatePosition = squadNewKRSumAry.indexOf(squadMinKillRate); // 最強スクワッドにclassを追加
-
-        var strongSquad = document.querySelectorAll("#draw > section");
-        strongSquad[squadMaxKillRatePosition].classList.add("strong-squad"); // 最弱スクワッドにclassを追加
-
-        var weakSquad = document.querySelectorAll("#draw > section");
-        weakSquad[squadMinKillRatePosition].classList.add("weak-squad");
-        (0,_copy_js__WEBPACK_IMPORTED_MODULE_2__.textData)(squadArray, squadNewKRSumAry, killRateAverage, squadMaxKillRate, squadMinKillRate); // エントリープレイヤーの重複チェック
-
-        var duplicateArrey = [];
-        _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.filter(function (val) {
-          // player_name だけを配列にする
-          duplicateArrey.push(val.player_name);
-        }); // 重複しているエントリープレイヤー
-
-        var duplicatePlayer = duplicateArrey.filter(function (val, i, array) {
-          return !(array.indexOf(val) === i);
-        });
-
-        if (duplicatePlayer.length) {
-          jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').append("<p class=\"warning\">Warning: Player name <span class=\"font-bold\">[".concat(duplicatePlayer, "]</span> is duplicated.</p>"));
-
-          for (var _i6 = 0; _i6 < duplicatePlayer.length; _i6++) {
-            for (var _j = 0; _j < _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.length; _j++) {
-              if (duplicatePlayer[_i6] == _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray[_j].player_name) {
-                jquery__WEBPACK_IMPORTED_MODULE_0___default()('.entry').eq(_j).addClass('warning');
-              }
-            }
-          }
-
-          jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').addClass("animate-fadeIn");
-        } // 抽選中の Loading を削除
-
-
-        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn .loading').css('display', 'none');
-        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#success-message').addClass("animate-fadeIn");
-        return "break";
-      } else if (count == limit) {
-        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').addClass("animate-fadeIn");
-        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#error-message').append("\n        <div class=\"flex justify-center items-center\">\n          <h3 class=\"mr-10 text-red-700 text-5xl font-barlow_condensed font-bold\">Not Found.</h3>\n          <div class=\"text-xl\">\n            <p>We have drawn ".concat(count.toLocaleString(), " and could not find a combination that meets the requirements.<br>\n            Please perform the drawing again or change the kill rate tolerance.</p>\n          </div>\n        </div>")); // 抽選中の Loading を削除
-
-        jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn .loading').css('display', 'none');
-      }
-
-      count++;
-    };
-
-    while (count <= limit) {
-      var _ret = _loop();
-
-      if (_ret === "break") break;
-    }
-  }, 100);
-}
-
-; // Draw ボタンクリック時の CSS 操作
-
-jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn button').on('mousedown', function () {
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('button').addClass('focus:ring-4 focus:ring-blue-300');
-});
-jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn button').on('mouseup', function () {
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('button').removeClass('focus:ring-4 focus:ring-blue-300');
-});
-
-
-/***/ }),
-/* 6 */
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "textData": () => (/* binding */ textData)
-/* harmony export */ });
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-
-var draw = document.getElementById("draw");
-
-function textData(squadArray, squadNewKRSumAry, killRateAverage, squadMaxKillRate, squadMinKillRate) {
-  // 分割されたスクワッドの配列をキルレート順にソート
-  for (var i = 0; i < squadArray.length; i++) {
-    squadArray[i].sort(function (first, second) {
-      return second.kill_rate - first.kill_rate;
-    });
-  }
-
-  draw.insertAdjacentHTML("afterend", "\n  <div id=\"copy\" class=\"mt-20\">\n    <h3 class=\"text-slate-300 text-center text-2xl\">Text data for copying</h3>\n    <div id=\"do-copy\" class=\"flex justify-center relative\"><button id=\"click-copy\" class=\"text-lg bg-blue-700 hover:bg-blue-800 px-5 py-1 mt-5 rounded-lg\">Copy</button></div>\n  </div>");
-  var copyId = document.getElementById('copy');
-  copyId.insertAdjacentHTML("beforeend", "<div id=\"copy-txt\" class=\"flex justify-center text-slate-300 mt-10\">Average kill rate for this tournament: ".concat(killRateAverage.toFixed(2), "<br>\nMaximum kill rate difference: ").concat((squadMaxKillRate.toFixed(2) - squadMinKillRate.toFixed(2)).toFixed(2), "<br><br>\n\n--------------------<br><br>\n\n</div>")); // squadArray をキルレの高い順にソート
-
-  for (var _i = 0; _i < squadArray.length; _i++) {
-    squadArray[_i].sort(function (a, b) {
-      return b.kill_rate - a.kill_rate;
-    });
-  }
-
-  var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  var copyTxt = document.getElementById('copy-txt');
-
-  for (var _i2 = 0; _i2 < squadArray.length; _i2++) {
-    copyTxt.insertAdjacentHTML("beforeend", "Group ".concat(alphabet[_i2], "<br>\n"));
-
-    for (var j = 0; j < squadArray[_i2].length; j++) {
-      var resultText = "".concat(squadArray[_i2][j].player_name, ": ").concat(squadArray[_i2][j].kill_rate.toFixed(2), "<br>\n");
-      copyTxt.insertAdjacentHTML("beforeend", resultText);
-    }
-
-    copyTxt.insertAdjacentHTML("beforeend", "Average kill rate: ".concat((squadNewKRSumAry[_i2] / squadArray[_i2].length).toFixed(2), "<br>\n"));
-    copyTxt.insertAdjacentHTML("beforeend", "Total kill rate: ".concat(squadNewKRSumAry[_i2].toFixed(2), "<br><br>\n\n--------------------<br><br>\n\n"));
-  } // コピーができたかどうかの確認メッセージを出力する場所を作る
-
-
-  var copyResult = document.createElement("div");
-  copyResult.setAttribute("id", "copy-result");
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#do-copy').append(copyResult); // クリップボードにコピーする
-
-  var copyTarget = document.getElementById("click-copy");
-  copyTarget.addEventListener("click", function () {
-    var copyArea = document.getElementById("copy-txt");
-    copyTarget = copyArea.textContent;
-    var txt = document.createElement("textarea");
-    txt.value = copyTarget;
-    navigator.clipboard.writeText(copyTarget).then(function () {
-      copyResult.innerHTML = '<div class="success-copy animate-fadeIn font-bold text-lg text-green-700 absolute top-6 ml-3">Copied.</div>';
-    }, function () {
-      copyResult.innerHTML = '<div class="false-copy font-bold text-lg text-red-700 absolute top-6 ml-3">Copy failed.</div>';
-    });
-
-    if (!navigator.clipboard) {
-      alert("This browser does not support copying.");
-    }
-
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#copy-result').empty();
-  });
-}
-
-;
-
-
-/***/ }),
-/* 7 */
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "csvError": () => (/* binding */ csvError),
-/* harmony export */   "csvInput": () => (/* binding */ csvInput),
-/* harmony export */   "csvReader": () => (/* binding */ csvReader),
-/* harmony export */   "csvSame": () => (/* binding */ csvSame)
-/* harmony export */ });
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _entry_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-
-
-var fileInput = document.getElementById("file-input");
-var fileReader = new FileReader(); // ファイル変更時のイベント
-
-var csvInput = fileInput.onchange = function () {
-  var file = fileInput.files[0];
-  var fileSize = file.size; // ファイルサイズ
-
-  var maxFileSize = 1024 * 100; // 制限サイズ
-  // メッセージ表示用の Div を作成
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').remove();
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#header').append('<div class="csv-import-message text-center w-full p-5 animate-fadeIn"></div>');
-
-  if (file.type !== "text/csv" && file.type !== "application/vnd.ms-excel" && file.type !== "application/octet-stream") {
-    alert("Only CSV files can be uploaded."); // エラーメッセージを表示
-
-    fileInput.value = ""; // inputの中身をリセット
-
-    return; // この時点で処理を終了する
-  } else if (fileSize > maxFileSize) {
-    // ファイルサイズが制限以上の場合
-    alert("File size should be less than 100KB."); // エラーメッセージを表示
-
-    fileInput.value = ""; // inputの中身をリセット
-
-    return; // この時点で処理を終了する
-  } else {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').html("Now Loading...");
-    fileReader.readAsText(file); // ファイル名を出力
-
-    var fileName = file.name;
-    var label = fileInput.nextElementSibling;
-
-    if (!label.classList.contains("changed")) {
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').empty();
-      jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').append("<p>".concat(fileName, "</p>"));
-    }
-  }
-}; // ファイル読み込み時
-
-
-var csvEntryArray = [];
-
-var csvReader = fileReader.onload = function () {
-  // ファイル読み込み
-  var fileResult = fileReader.result.split("\r\n"); // 先頭行をヘッダとして格納
-
-  var header = fileResult[0].split(","); // 先頭行の削除
-
-  fileResult.shift(); // CSVからエントリープレイヤーの配列を作る
-
-  csvEntryArray = fileResult.map(function (player) {
-    var datas = player.split(",");
-    var result = {};
-
-    for (var index in datas) {
-      var key = header[index];
-      result[key] = datas[index];
-    }
-
-    return result;
-  }); // entryArray を初期化
-
-  _entry_js__WEBPACK_IMPORTED_MODULE_1__.entryArray.splice(0); // 子要素を削除（エントリープレイヤー）
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('#entry').empty(); // csvデータを読み込みプレイヤー名を表示
-
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').append("<p class=\"text-green-600 text-xl\">".concat(csvEntryArray.length, " players loaded.</p>"));
-
-  for (var i = 0; i < csvEntryArray.length; i++) {
-    (0,_entry_js__WEBPACK_IMPORTED_MODULE_1__.newPlayerCreate)();
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()("#player".concat(i + 1, " .input-player")).val(csvEntryArray[i].player_name);
-  }
-}; // ファイル読み取り失敗時
-
-
-var csvError = fileReader.onerror = function () {
-  jquery__WEBPACK_IMPORTED_MODULE_0___default()('.csv-import-message').append("Failed to read file.");
-}; // 同じファイルをアップロードできるようにする
-
-
-var csvSame = fileInput.addEventListener("click", function (e) {
-  e.target.value = "";
-});
-
-
 /***/ })
-/******/ 	]);
+
+/******/ 	});
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
@@ -11804,13 +11831,16 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
 "use strict";
+/*!*****************!*\
+  !*** ./main.js ***!
+  \*****************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "../../node_modules/jquery/dist/jquery.js");
 /* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _ajax_player_id_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
-/* harmony import */ var _entry_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4);
-/* harmony import */ var _draw_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
-/* harmony import */ var _csv_import_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(7);
+/* harmony import */ var _ajax_player_id_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ajax-player-id.js */ "./ajax-player-id.js");
+/* harmony import */ var _entry_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./entry.js */ "./entry.js");
+/* harmony import */ var _draw_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./draw.js */ "./draw.js");
+/* harmony import */ var _csv_import_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./csv-import.js */ "./csv-import.js");
 
 
 
@@ -11870,3 +11900,4 @@ jquery__WEBPACK_IMPORTED_MODULE_0___default()('#draw-btn button').on('click', _d
 
 /******/ })()
 ;
+//# sourceMappingURL=bundle.js.map

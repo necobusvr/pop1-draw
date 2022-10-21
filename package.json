@@ -6,9 +6,11 @@
     "start": "node ./bin/www",
     "dev": "run-p dev:*",
     "dev:start": "node ./bin/www",
-    "dev:webpack": "webpack --watch",
+    "dev:webpack": "webpack --watch --mode development --devtool=source-map",
     "dev:css": "postcss ./app/css/input.css -o ./public/dist/style.css --watch",
-    "build": "NODE_ENV=production postcss ./app/css/input.css -o ./public/dist/style.css",
+    "build": "run-s build:*",
+    "build:webpack": "webpack --mode production",
+    "build:css": "NODE_ENV=production postcss ./app/css/input.css -o ./public/dist/style.css",
     "test": "jest"
   },
   "dependencies": {
