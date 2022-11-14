@@ -8,3 +8,5 @@ ENV LANG ja_JP.UTF-8
 ENV TZ Asia/Tokyo
 ENV CHOKIDAR_USEPOLLING=true
 WORKDIR /app
+COPY . /app
+CMD ["sh", "run.sh"]
