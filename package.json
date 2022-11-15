@@ -15,15 +15,13 @@
   },
   "dependencies": {
     "axios": "^0.26.1",
-    "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "helmet": "^5.0.2",
     "http-errors": "~1.6.3",
     "jquery": "^3.6.0",
     "morgan": "~1.9.1",
-    "pug": "2.0.0-beta11",
-    "uuidv4": "^6.2.13"
+    "pug": "2.0.0-beta11"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
