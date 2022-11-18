@@ -5,5 +5,5 @@
   "keywords": [
     "node"
   ],
-  "image": "heroku/nodejs"
+  "image": "render/nodejs"
 }

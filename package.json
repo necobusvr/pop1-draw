@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node app.js",
     "dev": "run-p dev:*",
     "dev:start": "node ./bin/www",
     "dev:webpack": "webpack --watch --mode development --devtool=source-map",

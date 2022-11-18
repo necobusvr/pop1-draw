@@ -673,14 +673,14 @@ select{
 .relative{
   position: relative;
 }
+.top-6{
+  top: 1.5rem;
+}
 .top-1{
   top: 0.25rem;
 }
 .right-7{
   right: 1.75rem;
-}
-.top-6{
-  top: 1.5rem;
 }
 .left-2\.5{
   left: 0.625rem;
@@ -691,14 +691,17 @@ select{
 .left-2{
   left: 0.5rem;
 }
-.z-10{
-  z-index: 10;
-}
 .z-50{
   z-index: 50;
 }
-.mb-0\.5{
-  margin-bottom: 0.125rem;
+.z-10{
+  z-index: 10;
+}
+.mt-1\.5{
+  margin-top: 0.375rem;
+}
+.mt-1{
+  margin-top: 0.25rem;
 }
 .mt-3{
   margin-top: 0.75rem;
@@ -709,14 +712,17 @@ select{
 .mt-4{
   margin-top: 1rem;
 }
-.mt-1{
-  margin-top: 0.25rem;
-}
-.mt-1\.5{
-  margin-top: 0.375rem;
+.mt-20{
+  margin-top: 5rem;
 }
 .mt-5{
   margin-top: 1.25rem;
+}
+.mt-10{
+  margin-top: 2.5rem;
+}
+.ml-3{
+  margin-left: 0.75rem;
 }
 .mr-10{
   margin-right: 2.5rem;
@@ -724,14 +730,8 @@ select{
 .mb-6{
   margin-bottom: 1.5rem;
 }
-.mt-20{
-  margin-top: 5rem;
-}
-.mt-10{
-  margin-top: 2.5rem;
-}
-.ml-3{
-  margin-left: 0.75rem;
+.mb-0\.5{
+  margin-bottom: 0.125rem;
 }
 .mb-0{
   margin-bottom: 0px;
@@ -787,23 +787,20 @@ select{
 .h-7{
   height: 1.75rem;
 }
+.w-\[120\%\]{
+  width: 120%;
+}
+.w-\[110px\]{
+  width: 110px;
+}
+.w-\[55px\]{
+  width: 55px;
+}
 .w-full{
   width: 100%;
 }
 .w-0\.5{
   width: 0.125rem;
-}
-.w-\[110px\]{
-  width: 110px;
-}
-.w-\[calc\(100\%_-_110px\)\]{
-  width: calc(100% - 110px);
-}
-.w-\[55px\]{
-  width: 55px;
-}
-.w-\[120\%\]{
-  width: 120%;
 }
 .w-0{
   width: 0px;
@@ -935,23 +932,23 @@ select{
 .rounded-lg{
   border-radius: 0.5rem;
 }
-.rounded-full{
-  border-radius: 9999px;
-}
 .rounded-md{
   border-radius: 0.375rem;
+}
+.rounded-full{
+  border-radius: 9999px;
 }
 .rounded{
   border-radius: 0.25rem;
 }
-.border{
-  border-width: 1px;
+.border-4{
+  border-width: 4px;
 }
 .border-0{
   border-width: 0px;
 }
-.border-4{
-  border-width: 4px;
+.border{
+  border-width: 1px;
 }
 .border-slate-800{
   --tw-border-opacity: 1;
@@ -961,28 +958,25 @@ select{
   --tw-border-opacity: 1;
   border-color: rgb(75 85 99 / var(--tw-border-opacity));
 }
-.bg-gray-700{
-  --tw-bg-opacity: 1;
-  background-color: rgb(55 65 81 / var(--tw-bg-opacity));
-}
-.bg-blue-600{
-  --tw-bg-opacity: 1;
-  background-color: rgb(37 99 235 / var(--tw-bg-opacity));
-}
 .bg-gray-800{
   --tw-bg-opacity: 1;
   background-color: rgb(31 41 55 / var(--tw-bg-opacity));
 }
-.bg-slate-800{
+.bg-gray-700{
   --tw-bg-opacity: 1;
-  background-color: rgb(30 41 59 / var(--tw-bg-opacity));
+  background-color: rgb(55 65 81 / var(--tw-bg-opacity));
 }
 .bg-blue-700{
   --tw-bg-opacity: 1;
   background-color: rgb(29 78 216 / var(--tw-bg-opacity));
 }
-.p-2\.5{
-  padding: 0.625rem;
+.bg-slate-800{
+  --tw-bg-opacity: 1;
+  background-color: rgb(30 41 59 / var(--tw-bg-opacity));
+}
+.bg-blue-600{
+  --tw-bg-opacity: 1;
+  background-color: rgb(37 99 235 / var(--tw-bg-opacity));
 }
 .p-3{
   padding: 0.75rem;
@@ -992,6 +986,9 @@ select{
 }
 .p-4{
   padding: 1rem;
+}
+.p-2\.5{
+  padding: 0.625rem;
 }
 .p-2{
   padding: 0.5rem;
@@ -1004,6 +1001,10 @@ select{
   padding-left: 0.75rem;
   padding-right: 0.75rem;
 }
+.py-0{
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
 .px-5{
   padding-left: 1.25rem;
   padding-right: 1.25rem;
@@ -1011,10 +1012,6 @@ select{
 .py-1{
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
-}
-.py-0{
-  padding-top: 0px;
-  padding-bottom: 0px;
 }
 .py-1\.5{
   padding-top: 0.375rem;
@@ -1040,11 +1037,11 @@ select{
 .text-right{
   text-align: right;
 }
-.font-caveat{
-  font-family: Caveat;
-}
 .font-barlow_condensed{
   font-family: Barlow Condensed;
+}
+.font-caveat{
+  font-family: Caveat;
 }
 .font-bebas_neue{
   font-family: Bebas Neue;
@@ -1055,10 +1052,6 @@ select{
 .font-alfa_slab_one{
   font-family: Alfa Slab One;
 }
-.text-lg{
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-}
 .text-xl{
   font-size: 1.25rem;
   line-height: 1.75rem;
@@ -1066,6 +1059,10 @@ select{
 .text-2xl{
   font-size: 1.5rem;
   line-height: 2rem;
+}
+.text-lg{
+  font-size: 1.125rem;
+  line-height: 1.75rem;
 }
 .text-5xl{
   font-size: 3rem;
@@ -1099,10 +1096,6 @@ select{
   --tw-text-opacity: 1;
   color: rgb(209 213 219 / var(--tw-text-opacity));
 }
-.text-white{
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity));
-}
 .text-amber-400{
   --tw-text-opacity: 1;
   color: rgb(251 191 36 / var(--tw-text-opacity));
@@ -1115,25 +1108,29 @@ select{
   --tw-text-opacity: 1;
   color: rgb(107 114 128 / var(--tw-text-opacity));
 }
-.text-green-600{
+.text-slate-300{
   --tw-text-opacity: 1;
-  color: rgb(22 163 74 / var(--tw-text-opacity));
-}
-.text-red-700{
-  --tw-text-opacity: 1;
-  color: rgb(185 28 28 / var(--tw-text-opacity));
+  color: rgb(203 213 225 / var(--tw-text-opacity));
 }
 .text-green-700{
   --tw-text-opacity: 1;
   color: rgb(21 128 61 / var(--tw-text-opacity));
 }
+.text-red-700{
+  --tw-text-opacity: 1;
+  color: rgb(185 28 28 / var(--tw-text-opacity));
+}
+.text-green-600{
+  --tw-text-opacity: 1;
+  color: rgb(22 163 74 / var(--tw-text-opacity));
+}
 .text-amber-500{
   --tw-text-opacity: 1;
   color: rgb(245 158 11 / var(--tw-text-opacity));
 }
-.text-slate-300{
+.text-white{
   --tw-text-opacity: 1;
-  color: rgb(203 213 225 / var(--tw-text-opacity));
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 .text-blue-600{
   --tw-text-opacity: 1;
@@ -1343,18 +1340,6 @@ body{
 .placeholder\:font-caveat::placeholder{
   font-family: Caveat;
 }
-.placeholder\:text-xl::-moz-placeholder{
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-}
-.placeholder\:text-xl:-ms-input-placeholder{
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-}
-.placeholder\:text-xl::placeholder{
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-}
 .placeholder\:text-sm::-moz-placeholder{
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -1366,6 +1351,18 @@ body{
 .placeholder\:text-sm::placeholder{
   font-size: 0.875rem;
   line-height: 1.25rem;
+}
+.placeholder\:text-xl::-moz-placeholder{
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+.placeholder\:text-xl:-ms-input-placeholder{
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+.placeholder\:text-xl::placeholder{
+  font-size: 1.25rem;
+  line-height: 1.75rem;
 }
 .hover\:cursor-pointer:hover{
   cursor: pointer;
